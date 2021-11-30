@@ -46,4 +46,4 @@ Resources:
         InvocationLevel:
           Type: Schedule
           Properties:
-            Schedule: cron(0 0 1 * ? *) # every 9th of every month (00:00 UTC)
+            Schedule: cron(0 0 9 * ? *) # every 9th of every month (00:00 UTC)
