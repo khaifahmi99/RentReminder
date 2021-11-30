@@ -1,0 +1,49 @@
+AWSTemplateFormatVersion: 2010-09-09
+Description: >-
+  Rent Reminder Stack using AWS SAM
+
+Transform:
+- AWS::Serverless-2016-10-31
+
+Parameters:
+  RentReminderTopicName:
+    Type: String
+    Description: 'Rent Reminder Topic Name'
+    Default: 'rent-reminder-topic'
+
+Resources:
+  RentReminderTopic:
+    Type: AWS::SNS::Topic
+    Properties:
+      DisplayName: !Ref RentReminderTopicName
+      TopicName: !Ref RentReminderTopicName
+      Subscription:
+        - Endpoint: khaifahmi99@gmail.com
+          Protocol: email
+        - Enpoint: person2@test.com
+          Protocol: email
+        - Enpoint: person3@test.com
+          Protocol: email
+
+  SendReminderFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: build
+      Handler: sendReminder.sendReminder
+      Runtime: nodejs14.x
+      Architectures:
+        - x86_64
+      MemorySize: 128
+      Timeout: 100
+      Description: A Lambda function that publish a reminder to the SNS Topic
+      Environment:
+        Variables:
+          SNS_TOPIC_ARN: !Ref RentReminderTopic
+      Policies:
+        - SNSPublishMessagePolicy:
+            TopicName: !GetAtt RentReminderTopic.TopicName
+      Events:
+        InvocationLevel:
+          Type: Schedule
+          Properties:
+            Schedule: cron(0 0 1 * ? *) # every 9th of every month (00:00 UTC)
